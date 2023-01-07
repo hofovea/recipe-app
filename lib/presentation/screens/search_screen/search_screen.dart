@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:recipe_app/presentation/bloc/recipe_bloc.dart';
 import 'package:recipe_app/presentation/screens/search_screen/widget/menu_drawer.dart';
 
 class ScreenScreen extends StatefulWidget {
@@ -11,6 +13,7 @@ class ScreenScreen extends StatefulWidget {
 class _ScreenScreenState extends State<ScreenScreen> {
   @override
   Widget build(BuildContext context) {
+    final recipeBloc = BlocProvider.of<RecipeBloc>(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -44,6 +47,7 @@ class _ScreenScreenState extends State<ScreenScreen> {
                     hintText: 'Search ',
                   ),
                   onChanged: (string) {
+                    recipeBloc.add(RecipeEvent.search(string));
                     // _debouncer.run(() {
                     //   setState(() {
                     //     userLists = ulist

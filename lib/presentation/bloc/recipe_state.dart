@@ -4,4 +4,5 @@ part of 'recipe_bloc.dart';
 class RecipeState with _$RecipeState {
   const factory RecipeState.initial(List<Recipe> recipesList) = _Initial;
   const factory RecipeState.loading() = _Loading;
+  const factory RecipeState.error() = _Error;
 }

@@ -50,6 +50,7 @@ dependencies:
   connectivity_plus: ^3.0.2
   dartz: ^0.10.1
   equatable: ^2.0.5
+  get_it: ^7.2.0
 
 dev_dependencies:
   flutter_test:
