@@ -11,16 +11,14 @@ class LogoScreen extends StatefulWidget {
 
 class _LogoScreenState extends State<LogoScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final int _duration = 3;
+  final Duration _duration = const Duration(seconds: 2);
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(
-        seconds: _duration,
-      ),
+      duration: _duration,
     )..addStatusListener(
         (status) {
           if (status == AnimationStatus.completed) {
@@ -45,7 +43,7 @@ class _LogoScreenState extends State<LogoScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Lottie.asset('assets/animations/recipes-book-animation.json',
+        child: Lottie.asset('animations/recipes-book-animation.json',
             controller: _controller, repeat: true, onLoaded: (_) {
           _controller.forward();
         }),

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:recipe_app/domain/entities/recipe.dart';
 import 'package:recipe_app/presentation/bloc/recipe_bloc.dart';
+import 'package:recipe_app/presentation/screens/search_screen/widget/backgrounds/empty_search_background.dart';
+import 'package:recipe_app/presentation/screens/search_screen/widget/backgrounds/initial_search_background.dart';
+import 'package:recipe_app/presentation/screens/search_screen/widget/loading.dart';
 import 'package:recipe_app/presentation/screens/search_screen/widget/menu_drawer.dart';
+import 'package:recipe_app/presentation/screens/search_screen/widget/recipe_tile.dart';
+import 'package:recipe_app/presentation/screens/search_screen/widget/search_bar/search_bar.dart';
+import 'package:recipe_app/presentation/style/app_style.dart';
 
 class ScreenScreen extends StatefulWidget {
   const ScreenScreen({Key? key}) : super(key: key);
@@ -11,6 +18,9 @@ class ScreenScreen extends StatefulWidget {
 }
 
 class _ScreenScreenState extends State<ScreenScreen> {
+  static const List<String> _dropdownMenu = ['Ascending', 'Descending'];
+  String _currentOrder = _dropdownMenu.first;
+
   @override
   Widget build(BuildContext context) {
     final recipeBloc = BlocProvider.of<RecipeBloc>(context);
@@ -23,44 +33,161 @@ class _ScreenScreenState extends State<ScreenScreen> {
         body: Center(
           child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.all(15),
-                child: TextField(
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: const BorderSide(
-                        color: Colors.blue,
-                      ),
-                    ),
-                    suffixIcon: const InkWell(
-                      child: Icon(Icons.search),
-                    ),
-                    contentPadding: const EdgeInsets.all(15.0),
-                    hintText: 'Search ',
-                  ),
-                  onChanged: (string) {
-                    recipeBloc.add(RecipeEvent.search(string));
-                    // _debouncer.run(() {
-                    //   setState(() {
-                    //     userLists = ulist
-                    //         .where(
-                    //           (u) => (u.text.toLowerCase().contains(
-                    //                 string.toLowerCase(),
-                    //               )),
-                    //         )
-                    //         .toList();
-                    //   });
-                    // });
-                  },
-                ),
+              SearchBar(
+                bloc: recipeBloc,
+              ),
+              BlocBuilder<RecipeBloc, RecipeState>(
+                builder: (context, state) {
+                  return state.when(
+                    initial: () {
+                      return const InitialSearchBackground();
+                    },
+                    searchResult: (List<Recipe> recipesList) {
+                      return Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: ListView.separated(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: recipesList.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Dismissible(
+                                    key: UniqueKey(),
+                                    direction: DismissDirection.startToEnd,
+                                    background: Container(
+                                      alignment: AlignmentDirectional.centerStart,
+                                      color: AppStyle.swipeToRightColor,
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                        child: Icon(Icons.add, size: 36),
+                                      ),
+                                    ),
+                                    confirmDismiss: (direction) async {
+                                      return false;
+                                    },
+                                    child: RecipeTile(recipe: recipesList[index]),
+                                  );
+                                },
+                                separatorBuilder: (BuildContext context, int index) {
+                                  return const Divider();
+                                },
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //widget.todoItemListBloc.add(const TodoItemListEvent.uploadSuccess());
+                                  },
+                                  style: AppStyle.defaultButtonStyle,
+                                  child: const Text(
+                                    'Save recipes',
+                                    style: AppStyle.saveButtonTextStyle,
+                                  ),
+                                ),
+                                DropdownButton(
+                                  items: _dropdownMenu
+                                      .map<DropdownMenuItem<String>>(
+                                        (String value) => DropdownMenuItem(
+                                          value: value,
+                                          child: Text(value),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (String? value) {
+                                    if (value != null) {
+                                      _currentOrder = value;
+                                      recipeBloc.add(RecipeEvent.sort(_currentOrder, recipesList));
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    loading: () {
+                      return const Loading();
+                    },
+                    error: (String errorMessage) {
+                      return Text(
+                        errorMessage,
+                        style: AppStyle.defaultTextStyle,
+                      );
+                    },
+                    emptySearch: () {
+                      return const EmptySearchBackground();
+                    },
+                    sorted: (List<Recipe> recipesList) {
+                      return Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: ListView.separated(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: recipesList.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Dismissible(
+                                    key: UniqueKey(),
+                                    direction: DismissDirection.startToEnd,
+                                    background: Container(
+                                      alignment: AlignmentDirectional.centerStart,
+                                      color: AppStyle.swipeToRightColor,
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                        child: Icon(Icons.add, size: 36),
+                                      ),
+                                    ),
+                                    confirmDismiss: (direction) async {
+                                      return false;
+                                    },
+                                    child: RecipeTile(recipe: recipesList[index]),
+                                  );
+                                },
+                                separatorBuilder: (BuildContext context, int index) {
+                                  return const Divider();
+                                },
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //widget.todoItemListBloc.add(const TodoItemListEvent.uploadSuccess());
+                                  },
+                                  style: AppStyle.defaultButtonStyle,
+                                  child: const Text(
+                                    'Save recipes',
+                                    style: AppStyle.saveButtonTextStyle,
+                                  ),
+                                ),
+                                DropdownButton(
+                                  items: _dropdownMenu
+                                      .map<DropdownMenuItem<String>>(
+                                        (String value) => DropdownMenuItem(
+                                      value: value,
+                                      child: Text(value),
+                                    ),
+                                  )
+                                      .toList(),
+                                  onChanged: (String? value) {
+                                    if (value != null) {
+                                      _currentOrder = value;
+                                      recipeBloc.add(RecipeEvent.sort(_currentOrder, recipesList));
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),

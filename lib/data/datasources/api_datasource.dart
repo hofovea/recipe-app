@@ -30,7 +30,6 @@ class ApiDatasourceImpl implements ApiDatasource {
       {'q': searchQuery, ..._appQuery},
     );
     final Response response = await client.get(finalUrl);
-    //print(response.body);
     if (response.statusCode == HttpStatus.ok) {
       final responseDto = ResponseDto.fromJson(json.decode(response.body));
       if (responseDto.count != 0 && responseDto.hits != null) {
