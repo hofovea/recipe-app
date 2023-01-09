@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recipe_app/presentation/localizations/app_localizations.dart';
 
 class EmptySearchBackground extends StatelessWidget {
   final double _iconSize = 64;
@@ -15,7 +16,7 @@ class EmptySearchBackground extends StatelessWidget {
           size: _iconSize,
         ),
         Text(
-          'Nothing found',
+          AppLocalizations.of(context)!.translate('nothingFound')!,
           style: Theme.of(context).textTheme.headline5,
         )
       ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:recipe_app/presentation/bloc/recipe_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:recipe_app/presentation/blocs/recipe_bloc/recipe_bloc.dart';
+import 'package:recipe_app/presentation/localizations/app_localizations.dart';
 import 'package:recipe_app/presentation/screens/search_screen/widget/search_bar/debouncer.dart';
 
 class SearchBar extends StatefulWidget {
@@ -23,6 +25,7 @@ class _SearchBarState extends State<SearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isConnected = Provider.of<bool>(context);
     return Container(
       padding: const EdgeInsets.all(15),
       child: TextField(
@@ -44,14 +47,13 @@ class _SearchBarState extends State<SearchBar> {
             child: Icon(Icons.search),
           ),
           contentPadding: const EdgeInsets.all(15.0),
-          hintText: 'Search ',
+          hintText: AppLocalizations.of(context)!.translate('search'),
         ),
         onChanged: (searchQuery) {
-          if (searchQuery.trim().isNotEmpty && _latestInput != searchQuery) {
+          if (isConnected && searchQuery.trim().isNotEmpty && _latestInput != searchQuery) {
             _latestInput = searchQuery;
             _debouncer.run(
               () {
-                print('search fired');
                 widget.bloc.add(RecipeEvent.search(searchQuery));
               },
             );

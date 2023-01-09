@@ -1,0 +1,18 @@
+{
+  "title": "Книга рецептів",
+  "nothingFound": "Нічого не знайдено",
+  "about": "Про додаток",
+  "history": "Останні рецепти",
+  "startSearch": "Почніть шукати",
+  "search": "Пошук",
+  "menu": "Меню",
+  "caloriesListItem": "Калорійність",
+  "caloriesAmount": "Калорійність",
+  "save": "Зберегти рецепти",
+  "no_connection": "Відсутнє зʼєднання",
+  "version": "Версія",
+  "notSorted" : "Не відсортовано",
+  "descending" : "А...Я",
+  "ascending" : "Я...А",
+  "emptyHistory" : "Історія відсутня"
+}

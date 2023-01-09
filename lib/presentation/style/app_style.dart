@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class AppStyle {
   static const mainThemeAccent = Colors.tealAccent;
   static const mainThemeColor = Colors.teal;
+  static final recipeImageBackgroundColor = Colors.grey[800];
   static final backgroundColor = Colors.teal[700];
   static const tabMenuItemColor = Colors.teal;
-  static final swipeToRightColor = Colors.deepPurpleAccent[100];
+  static final swipeToAddColor = Colors.deepPurpleAccent[100];
+  static const swipeToRemoveColor = Colors.red;
 
   static const saveButtonTextStyle = TextStyle(
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: FontWeight.bold,
     color: Colors.black,
   );
@@ -26,6 +28,11 @@ class AppStyle {
 
   static const defaultTextStyle = TextStyle(
     color: Colors.black,
+    fontSize: 24,
+  );
+
+  static const whiteTextStyle = TextStyle(
+    color: Colors.white,
     fontSize: 24,
   );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recipe_app/presentation/localizations/app_localizations.dart';
 
 class InitialSearchBackground extends StatelessWidget {
   final double _iconSize = 64;
@@ -15,7 +16,7 @@ class InitialSearchBackground extends StatelessWidget {
           size: _iconSize,
         ),
         Text(
-          'Start searching',
+          AppLocalizations.of(context)!.translate('startSearch')!,
           style: Theme.of(context).textTheme.headline5,
         )
       ],

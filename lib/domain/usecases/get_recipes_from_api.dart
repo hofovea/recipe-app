@@ -6,13 +6,13 @@ import 'package:recipe_app/domain/entities/recipe.dart';
 import 'package:recipe_app/domain/repositories/recipe_repository.dart';
 
 class GetRecipesFromApi extends UseCase<List<Recipe>, ApiSearchParams> {
-  final RecipeRepository repository;
+  final RecipeRepository _repository;
 
-  GetRecipesFromApi(this.repository);
+  GetRecipesFromApi(this._repository);
 
   @override
   Future<Either<Failure, List<Recipe>>> call(ApiSearchParams params) async {
-    return await repository.getRecipesFromApi(searchQuery: params.searchQuery);
+    return await _repository.getRecipesFromApi(searchQuery: params.searchQuery);
   }
 }
 

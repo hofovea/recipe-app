@@ -11,7 +11,7 @@ class LogoScreen extends StatefulWidget {
 
 class _LogoScreenState extends State<LogoScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final Duration _duration = const Duration(seconds: 2);
+  final Duration _duration = const Duration(seconds: 4);
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _LogoScreenState extends State<LogoScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Lottie.asset('animations/recipes-book-animation.json',
+        child: Lottie.asset('animations/recipes-animation.json',//'animations/recipes-book-animation.json',
             controller: _controller, repeat: true, onLoaded: (_) {
           _controller.forward();
         }),

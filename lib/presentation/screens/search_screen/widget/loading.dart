@@ -10,7 +10,9 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final Duration _duration = const Duration(seconds: 2);
+  final Duration _duration = const Duration(seconds: 4);
+  final double _animationWidth = 200;
+  final double _animationHeight = 200;
 
   @override
   void initState() {
@@ -38,7 +40,9 @@ class _LoadingState extends State<Loading> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Lottie.asset(
-      'animations/cooking-loading.json',
+      'animations/load-animation.json',
+      width: _animationWidth,
+      height: _animationHeight,
       controller: _controller,
       repeat: true,
       onLoaded: (_) {

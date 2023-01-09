@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:recipe_app/core/connectivity/network_connectivity.dart';
 import 'package:recipe_app/domain/entities/recipe.dart';
-import 'package:recipe_app/presentation/bloc/recipe_bloc.dart';
+import 'package:recipe_app/presentation/blocs/recipe_bloc/recipe_bloc.dart';
+import 'package:recipe_app/presentation/localizations/app_localizations.dart';
+import 'package:recipe_app/presentation/screens/search_screen/util/sorting_order.dart';
 import 'package:recipe_app/presentation/screens/search_screen/widget/backgrounds/empty_search_background.dart';
 import 'package:recipe_app/presentation/screens/search_screen/widget/backgrounds/initial_search_background.dart';
 import 'package:recipe_app/presentation/screens/search_screen/widget/loading.dart';
@@ -18,181 +22,207 @@ class ScreenScreen extends StatefulWidget {
 }
 
 class _ScreenScreenState extends State<ScreenScreen> {
-  static const List<String> _dropdownMenu = ['Ascending', 'Descending'];
-  String _currentOrder = _dropdownMenu.first;
+  static const List<SortingOrder> _dropdownMenu = [
+    SortingOrder.notSorted,
+    SortingOrder.ascending,
+    SortingOrder.descending
+  ];
+  SortingOrder _currentOrder = _dropdownMenu.first;
+  bool _isConnected = false;
+  final NetworkConnectivity _connectivity = NetworkConnectivity.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivity.initialise();
+    _connectivity.connectionStream.listen(
+      (bool connectionCheckResult) {
+        setState(
+          () {
+            _isConnected = connectionCheckResult;
+            print(_isConnected);
+            if (!_isConnected) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  duration: const Duration(seconds: 10),
+                  content: Text(
+                    AppLocalizations.of(context)!.translate('no_connection')!,
+                    textAlign: TextAlign.center,
+                    style: AppStyle.whiteTextStyle,
+                  ),
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final recipeBloc = BlocProvider.of<RecipeBloc>(context);
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Recipe app'),
-        ),
-        drawer: const MenuDrawer(),
-        body: Center(
-          child: Column(
-            children: [
-              SearchBar(
-                bloc: recipeBloc,
-              ),
-              BlocBuilder<RecipeBloc, RecipeState>(
-                builder: (context, state) {
-                  return state.when(
-                    initial: () {
-                      return const InitialSearchBackground();
-                    },
-                    searchResult: (List<Recipe> recipesList) {
-                      return Expanded(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ListView.separated(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemCount: recipesList.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Dismissible(
-                                    key: UniqueKey(),
-                                    direction: DismissDirection.startToEnd,
-                                    background: Container(
-                                      alignment: AlignmentDirectional.centerStart,
-                                      color: AppStyle.swipeToRightColor,
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                                        child: Icon(Icons.add, size: 36),
-                                      ),
-                                    ),
-                                    confirmDismiss: (direction) async {
-                                      return false;
-                                    },
-                                    child: RecipeTile(recipe: recipesList[index]),
-                                  );
-                                },
-                                separatorBuilder: (BuildContext context, int index) {
-                                  return const Divider();
-                                },
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    //widget.todoItemListBloc.add(const TodoItemListEvent.uploadSuccess());
-                                  },
-                                  style: AppStyle.defaultButtonStyle,
-                                  child: const Text(
-                                    'Save recipes',
-                                    style: AppStyle.saveButtonTextStyle,
-                                  ),
-                                ),
-                                DropdownButton(
-                                  items: _dropdownMenu
-                                      .map<DropdownMenuItem<String>>(
-                                        (String value) => DropdownMenuItem(
-                                          value: value,
-                                          child: Text(value),
+    return Provider<bool>.value(
+      value: _isConnected,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              AppLocalizations.of(context)!.translate('title')!,
+            ),
+          ),
+          drawer: const MenuDrawer(),
+          body: Center(
+            child: Column(
+              children: [
+                SearchBar(
+                  bloc: recipeBloc,
+                ),
+                BlocBuilder<RecipeBloc, RecipeState>(
+                  builder: (context, state) {
+                    return state.when(
+                      initial: () {
+                        return const InitialSearchBackground();
+                      },
+                      resultList: (List<Recipe> recipesList) {
+                        return Expanded(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ListView.separated(
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemCount: recipesList.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return Dismissible(
+                                      key: UniqueKey(),
+                                      direction: DismissDirection.startToEnd,
+                                      background: Container(
+                                        alignment: AlignmentDirectional.centerStart,
+                                        color: AppStyle.swipeToAddColor,
+                                        child: const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                          child: Icon(Icons.add, size: 36),
                                         ),
-                                      )
-                                      .toList(),
-                                  onChanged: (String? value) {
-                                    if (value != null) {
-                                      _currentOrder = value;
-                                      recipeBloc.add(RecipeEvent.sort(_currentOrder, recipesList));
-                                    }
+                                      ),
+                                      confirmDismiss: (direction) async {
+                                        if (_isConnected) {
+                                          recipeBloc.add(RecipeEvent.add([recipesList[index]]));
+                                        }
+                                        return false;
+                                      },
+                                      child: RecipeTile(recipe: recipesList[index]),
+                                    );
                                   },
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    loading: () {
-                      return const Loading();
-                    },
-                    error: (String errorMessage) {
-                      return Text(
-                        errorMessage,
-                        style: AppStyle.defaultTextStyle,
-                      );
-                    },
-                    emptySearch: () {
-                      return const EmptySearchBackground();
-                    },
-                    sorted: (List<Recipe> recipesList) {
-                      return Expanded(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ListView.separated(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemCount: recipesList.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Dismissible(
-                                    key: UniqueKey(),
-                                    direction: DismissDirection.startToEnd,
-                                    background: Container(
-                                      alignment: AlignmentDirectional.centerStart,
-                                      color: AppStyle.swipeToRightColor,
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                                        child: Icon(Icons.add, size: 36),
+                                  separatorBuilder: (BuildContext context, int index) {
+                                    return const Divider();
+                                  },
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Visibility(
+                                    visible: _isConnected,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        recipeBloc.add(RecipeEvent.add(recipesList));
+                                      },
+                                      style: AppStyle.defaultButtonStyle,
+                                      child: Text(
+                                        AppLocalizations.of(context)!.translate('save')!,
+                                        style: AppStyle.saveButtonTextStyle,
                                       ),
                                     ),
-                                    confirmDismiss: (direction) async {
-                                      return false;
-                                    },
-                                    child: RecipeTile(recipe: recipesList[index]),
-                                  );
-                                },
-                                separatorBuilder: (BuildContext context, int index) {
-                                  return const Divider();
-                                },
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    //widget.todoItemListBloc.add(const TodoItemListEvent.uploadSuccess());
-                                  },
-                                  style: AppStyle.defaultButtonStyle,
-                                  child: const Text(
-                                    'Save recipes',
-                                    style: AppStyle.saveButtonTextStyle,
                                   ),
-                                ),
-                                DropdownButton(
-                                  items: _dropdownMenu
-                                      .map<DropdownMenuItem<String>>(
-                                        (String value) => DropdownMenuItem(
-                                      value: value,
-                                      child: Text(value),
-                                    ),
+                                  DropdownButton<SortingOrder>(
+                                    value: _currentOrder,
+                                    items: _dropdownMenu.map<DropdownMenuItem<SortingOrder>>(
+                                      (SortingOrder value) {
+                                        switch (value) {
+                                          case SortingOrder.ascending:
+                                            {
+                                              return DropdownMenuItem(
+                                                value: value,
+                                                child: Row(
+                                                  children: [
+                                                    Text(AppLocalizations.of(context)!
+                                                        .translate('ascending')!),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    const Icon(Icons.arrow_circle_down),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                          case SortingOrder.descending:
+                                            {
+                                              return DropdownMenuItem(
+                                                value: value,
+                                                child: Row(
+                                                  children: [
+                                                    Text(AppLocalizations.of(context)!
+                                                        .translate('descending')!),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    const Icon(Icons.arrow_circle_up),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                          case SortingOrder.notSorted:
+                                            {
+                                              return DropdownMenuItem(
+                                                value: value,
+                                                child: Text(AppLocalizations.of(context)!
+                                                    .translate('notSorted')!),
+                                              );
+                                            }
+                                        }
+                                      },
+                                    ).toList(),
+                                    onChanged: (SortingOrder? value) {
+                                      if (value != null) {
+                                        _currentOrder = value;
+                                        recipeBloc
+                                            .add(RecipeEvent.sort(_currentOrder, recipesList));
+                                      }
+                                    },
                                   )
-                                      .toList(),
-                                  onChanged: (String? value) {
-                                    if (value != null) {
-                                      _currentOrder = value;
-                                      recipeBloc.add(RecipeEvent.sort(_currentOrder, recipesList));
-                                    }
-                                  },
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      loading: () {
+                        return const Loading();
+                      },
+                      error: (String errorMessage) {
+                        return Text(
+                          errorMessage,
+                          style: AppStyle.defaultTextStyle,
+                        );
+                      },
+                      emptySearch: () {
+                        return const EmptySearchBackground();
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _connectivity.disposeStream();
+    super.dispose();
   }
 }

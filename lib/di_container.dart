@@ -1,17 +1,30 @@
 import 'package:get_it/get_it.dart';
 import 'package:recipe_app/data/datasources/api_datasource.dart';
+import 'package:recipe_app/data/datasources/firebase_datasource.dart';
 import 'package:recipe_app/data/repositories/recipe_repository_impl.dart';
 import 'package:recipe_app/domain/repositories/recipe_repository.dart';
+import 'package:recipe_app/domain/usecases/add_recipes_to_firebase.dart';
+import 'package:recipe_app/domain/usecases/delete_recipe_from_firebase.dart';
 import 'package:recipe_app/domain/usecases/get_recipes_from_api.dart';
-import 'package:recipe_app/presentation/bloc/recipe_bloc.dart';
+import 'package:recipe_app/domain/usecases/get_recipes_from_firebase.dart';
 import 'package:http/http.dart' as http;
+import 'package:recipe_app/presentation/blocs/history_bloc/history_bloc.dart';
+import 'package:recipe_app/presentation/blocs/recipe_bloc/recipe_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> init() async {
-  //bloc
+  //blocs
   serviceLocator.registerFactory(
     () => RecipeBloc(
+      serviceLocator(),
+      serviceLocator(),
+    ),
+  );
+
+serviceLocator.registerFactory(
+    () => HistoryBloc(
+      serviceLocator(),
       serviceLocator(),
     ),
   );
@@ -23,9 +36,28 @@ Future<void> init() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton(
+    () => GetRecipesFromFirebase(
+      serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => AddRecipesToFirebase(
+      serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton(
+    () => DeleteRecipeFromFirebase(
+      serviceLocator(),
+    ),
+  );
+
   //repositories
   serviceLocator.registerLazySingleton<RecipeRepository>(
     () => RecipeRepositoryImpl(
+      serviceLocator(),
       serviceLocator(),
     ),
   );
@@ -35,6 +67,10 @@ Future<void> init() async {
     () => ApiDatasourceImpl(
       serviceLocator(),
     ),
+  );
+
+  serviceLocator.registerLazySingleton<FirebaseDatasource>(
+    () => FirebaseDatasourceImpl(),
   );
 
   //external packages

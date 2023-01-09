@@ -1,0 +1,18 @@
+{
+  "title": "Recipe app",
+  "nothingFound": "Nothing found",
+  "about": "About app",
+  "history": "Last recipes",
+  "startSearch": "Start searching",
+  "search": "Search",
+  "menu": "Menu",
+  "caloriesListItem": "Calories",
+  "caloriesAmount": "Amount of calories",
+  "save": "Save recipes",
+  "no_connection": "No connection",
+  "version" : "Version",
+  "notSorted" : "Not sorted",
+  "descending" : "Z...A",
+  "ascending" : "A...Z",
+  "emptyHistory" : "History is empty"
+}

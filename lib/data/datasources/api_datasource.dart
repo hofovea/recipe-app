@@ -11,7 +11,7 @@ abstract class ApiDatasource {
 }
 
 class ApiDatasourceImpl implements ApiDatasource {
-  final Client client;
+  final Client _client;
   final String _baseUrl = 'api.edamam.com';
   final String _uri = '/api/recipes/v2';
   final Map<String, String> _appQuery = {
@@ -20,7 +20,7 @@ class ApiDatasourceImpl implements ApiDatasource {
     'app_key': 'e27bf8ce7f25d496d7d4f0789feb0fe3'
   };
 
-  ApiDatasourceImpl(this.client);
+  ApiDatasourceImpl(this._client);
 
   @override
   Future<List<RecipeDto>> getRecipes(String searchQuery) async {
@@ -29,7 +29,7 @@ class ApiDatasourceImpl implements ApiDatasource {
       _uri,
       {'q': searchQuery, ..._appQuery},
     );
-    final Response response = await client.get(finalUrl);
+    final Response response = await _client.get(finalUrl);
     if (response.statusCode == HttpStatus.ok) {
       final responseDto = ResponseDto.fromJson(json.decode(response.body));
       if (responseDto.count != 0 && responseDto.hits != null) {
