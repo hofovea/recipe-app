@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart';
 import 'package:recipe_app/core/error/exceptions.dart';
 import 'package:recipe_app/data/dto/recipe_dto/recipe_dto.dart';
-import 'package:recipe_app/data/dto/response_dto/response_dto.dart';
+import 'package:recipe_app/data/api_resoponse/api_response.dart';
 
 abstract class ApiDatasource {
   Future<List<RecipeDto>> getRecipes(String query);
@@ -31,7 +31,7 @@ class ApiDatasourceImpl implements ApiDatasource {
     );
     final Response response = await _client.get(finalUrl);
     if (response.statusCode == HttpStatus.ok) {
-      final responseDto = ResponseDto.fromJson(json.decode(response.body));
+      final responseDto = ApiResponse.fromJson(json.decode(response.body));
       if (responseDto.count != 0 && responseDto.hits != null) {
         return responseDto.hits!.map((hit) => hit.recipe!).toList();
       } else {

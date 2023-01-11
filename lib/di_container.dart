@@ -8,6 +8,7 @@ import 'package:recipe_app/domain/usecases/delete_recipe_from_firebase.dart';
 import 'package:recipe_app/domain/usecases/get_recipes_from_api.dart';
 import 'package:recipe_app/domain/usecases/get_recipes_from_firebase.dart';
 import 'package:http/http.dart' as http;
+import 'package:recipe_app/presentation/blocs/connectivity_bloc/connectivity_bloc.dart';
 import 'package:recipe_app/presentation/blocs/history_bloc/history_bloc.dart';
 import 'package:recipe_app/presentation/blocs/recipe_bloc/recipe_bloc.dart';
 
@@ -22,11 +23,15 @@ Future<void> init() async {
     ),
   );
 
-serviceLocator.registerFactory(
+  serviceLocator.registerFactory(
     () => HistoryBloc(
       serviceLocator(),
       serviceLocator(),
     ),
+  );
+
+  serviceLocator.registerFactory(
+    () => ConnectivityBloc(),
   );
 
   //use cases

@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:recipe_app/presentation/blocs/connectivity_bloc/connectivity_bloc.dart';
 import 'package:recipe_app/presentation/blocs/history_bloc/history_bloc.dart';
 import 'package:recipe_app/presentation/blocs/recipe_bloc/recipe_bloc.dart';
 import 'package:recipe_app/presentation/localizations/app_localizations.dart';
+import 'package:recipe_app/presentation/routing/app_router.gr.dart';
 import 'package:recipe_app/presentation/screens/logo_screen/logo_screen.dart';
 import 'package:recipe_app/presentation/style/app_style.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -17,25 +19,20 @@ void main() async {
   );
   await di.init();
   await di.serviceLocator.allReady();
-  runApp(const App());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
-  const App({super.key});
+  App({super.key});
+
+  final _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => di.serviceLocator<RecipeBloc>(),
-        ),
-        BlocProvider(
-          create: (context) => di.serviceLocator<HistoryBloc>(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
+    return BlocProvider(
+      create: (context) => di.serviceLocator<ConnectivityBloc>()
+        ..add(const ConnectivityEvent.listenToConnectionState()),
+      child: MaterialApp.router(
         theme: ThemeData(
           primarySwatch: AppStyle.mainThemeColor,
         ),
@@ -59,7 +56,8 @@ class App extends StatelessWidget {
           }
           return supportedLocales.first;
         },
-        home: const LogoScreen(),
+        routerDelegate: _appRouter.delegate(),
+        routeInformationParser: _appRouter.defaultRouteParser(),
       ),
     );
   }

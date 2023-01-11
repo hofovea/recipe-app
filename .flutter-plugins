@@ -10,6 +10,6 @@ shared_preferences=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlan
 shared_preferences_android=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_android-2.0.14/
 shared_preferences_ios=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_ios-2.1.1/
 shared_preferences_linux=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_linux-2.1.2/
-shared_preferences_macos=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-2.0.4/
+shared_preferences_macos=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-2.0.5/
 shared_preferences_web=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_web-2.0.4/
 shared_preferences_windows=/Users/user/Development/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_windows-2.1.2/

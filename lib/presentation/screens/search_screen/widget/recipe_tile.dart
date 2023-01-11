@@ -1,6 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:recipe_app/domain/entities/recipe.dart';
 import 'package:recipe_app/presentation/localizations/app_localizations.dart';
+import 'package:recipe_app/presentation/routing/app_router.gr.dart';
 import 'package:recipe_app/presentation/screens/recipe_screen/recipe_screen.dart';
 
 class RecipeTile extends StatelessWidget {
@@ -14,13 +16,10 @@ class RecipeTile extends StatelessWidget {
     return Material(
       child: ListTile(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RecipeScreen(
-                recipe: recipe,
-                tag: tag,
-              ),
+          AutoRouter.of(context).push(
+            RecipeRoute(
+              recipe: recipe,
+              tag: tag,
             ),
           );
         },

@@ -1,12 +1,11 @@
 import 'dart:async';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
-import 'package:recipe_app/presentation/blocs/history_bloc/history_bloc.dart';
-import 'package:recipe_app/presentation/blocs/recipe_bloc/recipe_bloc.dart';
+import 'package:recipe_app/presentation/blocs/connectivity_bloc/connectivity_bloc.dart';
 import 'package:recipe_app/presentation/localizations/app_localizations.dart';
-import 'package:recipe_app/presentation/screens/history_screen/history_screen.dart';
+import 'package:recipe_app/presentation/routing/app_router.gr.dart';
 import 'package:recipe_app/presentation/style/app_style.dart';
 
 class MenuDrawer extends StatefulWidget {
@@ -34,107 +33,108 @@ class _MenuDrawerState extends State<MenuDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isConnected = Provider.of<bool>(context);
-    return Drawer(
-      backgroundColor: AppStyle.backgroundColor,
-      child: Column(
-        // padding: EdgeInsets.zero,
-        children: [
-          SizedBox(
-            height: _drawerHeaderHeight,
-            child: DrawerHeader(
-              decoration: const BoxDecoration(
-                color: AppStyle.mainThemeAccent,
-              ),
-              child: Center(
-                child: Text(
-                  AppLocalizations.of(context)!.translate('menu')!,
-                  style: AppStyle.defaultTextStyle.copyWith(fontSize: _headingFontSize),
-                ),
-              ),
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              if (isConnected) {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return HistoryScreen(bloc: BlocProvider.of<HistoryBloc>(context));
+    return BlocBuilder<ConnectivityBloc, ConnectivityState>(
+      builder: (context, state) {
+        return state.when(
+          connectionState: (isConnected) {
+            return Drawer(
+              backgroundColor: AppStyle.backgroundColor,
+              child: Column(
+                // padding: EdgeInsets.zero,
+                children: [
+                  SizedBox(
+                    height: _drawerHeaderHeight,
+                    child: DrawerHeader(
+                      decoration: const BoxDecoration(
+                        color: AppStyle.mainThemeAccent,
+                      ),
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.translate('menu')!,
+                          style: AppStyle.defaultTextStyle.copyWith(fontSize: _headingFontSize),
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if (isConnected) {
+                        AutoRouter.of(context).pop();
+                        AutoRouter.of(context).push(const HistoryRoute());
+                      }
                     },
+                    child: Row(
+                      children: [
+                        const Padding(
+                          padding: _iconPadding,
+                          child: Icon(
+                            Icons.history_outlined,
+                            size: _iconSize,
+                          ),
+                        ),
+                        Padding(
+                          padding: _textPadding,
+                          child: Text(
+                            AppLocalizations.of(context)!.translate('history')!,
+                            style: AppStyle.defaultTextStyle,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                );
-              }
-            },
-            child: Row(
-              children: [
-                const Padding(
-                  padding: _iconPadding,
-                  child: Icon(
-                    Icons.history_outlined,
-                    size: _iconSize,
-                  ),
-                ),
-                Padding(
-                  padding: _textPadding,
-                  child: Text(
-                    AppLocalizations.of(context)!.translate('history')!,
-                    style: AppStyle.defaultTextStyle,
-                  ),
-                )
-              ],
-            ),
-          ),
-          InkWell(
-            onTap: () async {
-              String result = await platform.invokeMethod('getAppVersion');
-              setState(
-                () {
-                  _appVersion = result;
-                  _visible = true;
-                  Timer(
-                    _showAboutDuration,
-                    () {
-                      setState(() {
-                        _visible = false;
-                      });
+                  InkWell(
+                    onTap: () async {
+                      String result = await platform.invokeMethod('getAppVersion');
+                      setState(
+                        () {
+                          _appVersion = result;
+                          _visible = true;
+                          Timer(
+                            _showAboutDuration,
+                            () {
+                              setState(() {
+                                _visible = false;
+                              });
+                            },
+                          );
+                        },
+                      );
                     },
-                  );
-                },
-              );
-            },
-            child: Row(
-              children: [
-                const Padding(
-                  padding: _iconPadding,
-                  child: Icon(
-                    Icons.info_outlined,
-                    size: _iconSize,
+                    child: Row(
+                      children: [
+                        const Padding(
+                          padding: _iconPadding,
+                          child: Icon(
+                            Icons.info_outlined,
+                            size: _iconSize,
+                          ),
+                        ),
+                        Padding(
+                          padding: _textPadding,
+                          child: Text(
+                            AppLocalizations.of(context)!.translate('about')!,
+                            style: AppStyle.defaultTextStyle,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: _textPadding,
-                  child: Text(
-                    AppLocalizations.of(context)!.translate('about')!,
-                    style: AppStyle.defaultTextStyle,
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AnimatedOpacity(
+                      opacity: _visible ? _maxOpacity : _minOpacity,
+                      duration: _duration,
+                      child: Text(
+                          '${AppLocalizations.of(context)!.translate('version')!} $_appVersion'),
+                    ),
                   ),
-                )
-              ],
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AnimatedOpacity(
-              opacity: _visible ? _maxOpacity : _minOpacity,
-              duration: _duration,
-              child: Text('${AppLocalizations.of(context)!.translate('version')!} $_appVersion'),
-            ),
-          ),
-        ],
-      ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

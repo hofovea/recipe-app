@@ -1,5 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:recipe_app/presentation/routing/app_router.gr.dart';
 import 'package:recipe_app/presentation/screens/search_screen/search_screen.dart';
 
 class LogoScreen extends StatefulWidget {
@@ -22,12 +24,7 @@ class _LogoScreenState extends State<LogoScreen> with SingleTickerProviderStateM
     )..addStatusListener(
         (status) {
           if (status == AnimationStatus.completed) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ScreenScreen(),
-              ),
-            );
+            AutoRouter.of(context).push(const SearchRoute());
           }
         },
       );
@@ -43,8 +40,10 @@ class _LogoScreenState extends State<LogoScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Lottie.asset('animations/recipes-animation.json',//'animations/recipes-book-animation.json',
-            controller: _controller, repeat: true, onLoaded: (_) {
+        child: Lottie.asset(
+            'animations/recipes-animation.json', //'animations/recipes-book-animation.json',
+            controller: _controller,
+            repeat: true, onLoaded: (_) {
           _controller.forward();
         }),
       ),
